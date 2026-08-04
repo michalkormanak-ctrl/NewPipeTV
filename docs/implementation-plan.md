@@ -58,11 +58,13 @@ prístupu – kód je pripravený, dáta nie sú v tomto sedení stiahnuté.
   právne použitie**. Extrakcia zadania z voľného textu (krok 1),
   ústavnoprávna/EÚ kontrola (kroky 5-6) a procesná mapa (krok 11) nie sú
   implementované - vyžadujú LLM.
-- Exportná vrstva pre výstupný balík (sekcia 14 A-L) hotová a testovaná:
-  Markdown/JSON/HTML/DOCX/XLSX (`backend/app/export/`) + `POST /api/v1/export/*`
-  vrátane XLSX pre kontrolnú správu aj pripomienky. Chýba iba PDF export.
-  `run_legislative_project()` vracia priamo `LegislativePackage`, takže sa
-  dá rovno posunúť ktorémukoľvek exportéru vyššie.
+- Exportná vrstva pre výstupný balík (sekcia 14 A-L) hotová a testovaná
+  pre **všetkých 6 formátov zo sekcie 15**: Markdown/JSON/HTML/DOCX/PDF/XLSX
+  (`backend/app/export/`) + `POST /api/v1/export/*`. PDF používa balený
+  DejaVu Sans font kvôli slovenskej diakritike (regresný test
+  `test_pdf_renders_slovak_diacritics_correctly`). `run_legislative_project()`
+  vracia priamo `LegislativePackage`, takže sa dá rovno posunúť
+  ktorémukoľvek exportéru vyššie.
 
 ## Etapa 4 – Kontrolný systém — **NAVRHNUTÉ**
 - `validation_result` entita a `check_type` enumerácia pre kontroly A–G

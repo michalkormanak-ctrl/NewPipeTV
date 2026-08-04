@@ -12,6 +12,7 @@ from app.export.docx_exporter import to_docx_bytes
 from app.export.html_exporter import to_html
 from app.export.json_exporter import to_json
 from app.export.markdown_exporter import to_markdown
+from app.export.pdf_exporter import to_pdf_bytes
 from app.export.xlsx_exporter import to_comments_xlsx_bytes, to_findings_xlsx_bytes
 from app.schemas.export import CommentExportRowIn, LegislativePackageIn
 
@@ -19,6 +20,7 @@ router = APIRouter(prefix="/api/v1/export", tags=["export"])
 
 _DOCX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 _XLSX_MEDIA_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+_PDF_MEDIA_TYPE = "application/pdf"
 
 
 @router.post("/markdown", response_class=PlainTextResponse)
@@ -43,6 +45,16 @@ def export_docx(package_in: LegislativePackageIn) -> Response:
         content=content,
         media_type=_DOCX_MEDIA_TYPE,
         headers={"Content-Disposition": 'attachment; filename="legislativny-material.docx"'},
+    )
+
+
+@router.post("/pdf")
+def export_pdf(package_in: LegislativePackageIn) -> Response:
+    content = to_pdf_bytes(package_in.to_dataclass())
+    return Response(
+        content=content,
+        media_type=_PDF_MEDIA_TYPE,
+        headers={"Content-Disposition": 'attachment; filename="legislativny-material.pdf"'},
     )
 
 

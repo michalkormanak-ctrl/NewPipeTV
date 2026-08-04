@@ -17,12 +17,15 @@
    netestované end-to-end (vyžaduje bežiaci OpenSearch).
 5. **Bez autentifikácie/MFA.** RBAC v pilote číta rolu z HTTP hlavičky bez
    overenia identity - nepoužívať mimo lokálneho vývoja.
-6. **Exportná vrstva čiastočne implementovaná.** Markdown/JSON/HTML/DOCX/XLSX
-   (kontrolná správa aj pripomienky) exportéry existujú a sú testované
-   (`app/export/`, `POST /api/v1/export/*`) - fungujú nad ľubovoľným
-   `LegislativePackage`/zoznamom pripomienok zostaveným klientom. **Chýba
-   iba PDF export.** Endpointy neorchestrujú *generovanie* obsahu balíka
-   (to vyžaduje LLM, pozri bod 8 nižšie) - iba serializujú už zostavené dáta.
+6. **Exportná vrstva implementovaná pre všetkých 6 formátov zo sekcie 15**
+   (Markdown/JSON/HTML/DOCX/PDF/XLSX) - `app/export/`,
+   `POST /api/v1/export/*`, fungujú nad ľubovoľným
+   `LegislativePackage`/zoznamom pripomienok zostaveným klientom. PDF
+   exportér používa balený font DejaVu Sans (`app/export/fonts/`,
+   licencia v `fonts/LICENSE`) kvôli správnemu zobrazeniu slovenskej
+   diakritiky - vstavané reportlab fonty ju nepodporujú. Endpointy
+   neorchestrujú *generovanie* obsahu balíka (to vyžaduje LLM, pozri bod 8
+   nižšie) - iba serializujú už zostavené dáta.
 7. **Bez frontendu s plnou funkcionalitou.** `frontend/` obsahuje iba
    minimálnu jednostránkovú demo pre `/api/v1/search`, nie všetky režimy
    zo sekcie 15 ani UI pre export.

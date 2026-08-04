@@ -52,6 +52,13 @@ def test_export_docx_returns_office_document() -> None:
     assert response.content[:2] == b"PK"  # DOCX je ZIP kontajner
 
 
+def test_export_pdf_returns_pdf_document() -> None:
+    response = client.post("/api/v1/export/pdf", json=_PAYLOAD)
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert response.content[:5] == b"%PDF-"
+
+
 def test_export_findings_xlsx_returns_spreadsheet() -> None:
     response = client.post("/api/v1/export/xlsx/findings", json=_PAYLOAD)
     assert response.status_code == 200
