@@ -2,36 +2,75 @@
 <html lang="sk">
 <head>
 <meta charset="utf-8" />
-<title>SK legislatívny pilot — vyhľadávanie</title>
+<title>SK legislatívny pilot</title>
 <style>
-  body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
-  input, button { font-size: 1rem; padding: 0.4rem; }
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+  input, textarea, button, select { font-size: 1rem; padding: 0.4rem; font-family: inherit; }
+  textarea { width: 100%; box-sizing: border-box; }
   #query { width: 60%; }
   .result { border: 1px solid #ccc; border-radius: 6px; padding: 0.75rem; margin: 0.75rem 0; }
   .meta { color: #555; font-size: 0.85rem; }
   .note { background: #fff3cd; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
   .disclaimer { background: #f8d7da; padding: 0.5rem; border-radius: 4px; }
+  .tabs { display: flex; gap: 0.5rem; margin: 1rem 0; border-bottom: 1px solid #ccc; }
+  .tab { padding: 0.5rem 1rem; cursor: pointer; border: none; background: none; border-bottom: 3px solid transparent; }
+  .tab.active { border-bottom-color: #2a6ebb; font-weight: bold; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .section-heading { margin-top: 1.2rem; margin-bottom: 0.2rem; }
+  .findings-kriticke { border-left: 4px solid #b00020; padding-left: 0.5rem; margin: 0.3rem 0; }
+  .findings-zavazne { border-left: 4px solid #e08000; padding-left: 0.5rem; margin: 0.3rem 0; }
+  .findings-stredne { border-left: 4px solid #d0a000; padding-left: 0.5rem; margin: 0.3rem 0; }
+  .findings-legislativno_technicke, .findings-odporucanie { border-left: 4px solid #888; padding-left: 0.5rem; margin: 0.3rem 0; }
+  .export-buttons button { margin: 0.2rem 0.3rem 0.2rem 0; }
+  .open-questions { background: #e7f1ff; padding: 0.5rem 1rem; border-radius: 4px; }
 </style>
 </head>
 <body>
 <h1>SK legislatívny pilot</h1>
 <p class="disclaimer">
-  Toto je vývojový pilot bez reálnych overených právnych dát (pozri
-  <code>docs/known-limitations.md</code> v repozitári). Nepoužívať ako
-  zdroj právne záväzných informácií.
+  Toto je vývojový pilot bez reálnych overených právnych dát a bez skutočného
+  LLM (pozri <code>docs/known-limitations.md</code> v repozitári). Nepoužívať
+  ako zdroj právne záväzných informácií.
 </p>
 
-<div>
-  <input id="query" placeholder="napr. § 31 ods. 2" />
-  <input id="asOf" type="date" />
-  <button onclick="search()">Hľadať</button>
+<div class="tabs">
+  <button class="tab active" data-tab="search">Právna rešerš</button>
+  <button class="tab" data-tab="project">Legislatívny projekt</button>
 </div>
 
-<div id="note"></div>
-<div id="results"></div>
+<section id="panel-search" class="panel active">
+  <div>
+    <input id="query" placeholder="napr. § 31 ods. 2" />
+    <input id="asOf" type="date" />
+    <button onclick="search()">Hľadať</button>
+  </div>
+  <div id="searchNote"></div>
+  <div id="searchResults"></div>
+</section>
+
+<section id="panel-project" class="panel">
+  <p>Zadajte pokyn v prirodzenom jazyku (napr. príklad zo zadania systému).</p>
+  <textarea id="instruction" rows="4" placeholder="Doplň do zákona č. 500/2022 Z. z. oprávnenie ...">Doplň do zákona č. 500/2022 Z. z. oprávnenie Vojenského spravodajstva získavať údaje z určeného registra.</textarea>
+  <div>
+    <input id="projectAsOf" type="date" />
+    <button onclick="runProject()">Spustiť</button>
+  </div>
+  <div id="projectOutput"></div>
+</section>
 
 <script>
 const API_BASE = "http://localhost:8000";
+let lastPackage = null;
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+    tab.classList.add("active");
+    document.getElementById("panel-" + tab.dataset.tab).classList.add("active");
+  });
+});
 
 async function search() {
   const q = document.getElementById("query").value;
@@ -40,8 +79,8 @@ async function search() {
   url.searchParams.set("q", q);
   if (asOf) url.searchParams.set("as_of", asOf);
 
-  const noteEl = document.getElementById("note");
-  const resultsEl = document.getElementById("results");
+  const noteEl = document.getElementById("searchNote");
+  const resultsEl = document.getElementById("searchResults");
   noteEl.textContent = "Načítavam...";
   resultsEl.innerHTML = "";
 
@@ -63,6 +102,112 @@ async function search() {
     `).join("");
   } catch (e) {
     noteEl.textContent = "Chyba pri volaní API: " + e;
+  }
+}
+
+const SEVERITY_LABELS = {
+  kriticke: "Kritické", zavazne: "Závažné", stredne: "Stredné",
+  legislativno_technicke: "Legislatívno-technické", odporucanie: "Odporúčania",
+};
+
+async function runProject() {
+  const instruction = document.getElementById("instruction").value;
+  const asOf = document.getElementById("projectAsOf").value;
+  const outputEl = document.getElementById("projectOutput");
+  outputEl.innerHTML = "Spracúvam...";
+  lastPackage = null;
+
+  try {
+    const res = await fetch(API_BASE + "/api/v1/legislative-project/from-text", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ instruction, as_of: asOf || null }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      outputEl.innerHTML = `<div class="disclaimer">Chyba: ${JSON.stringify(data)}</div>`;
+      return;
+    }
+    lastPackage = data;
+    renderPackage(data, outputEl);
+  } catch (e) {
+    outputEl.innerHTML = `<div class="disclaimer">Chyba pri volaní API: ${e}</div>`;
+  }
+}
+
+function renderPackage(pkg, outputEl) {
+  const findingsHtml = Object.entries(pkg.findings_by_severity || {})
+    .filter(([, items]) => items.length > 0)
+    .map(([severity, items]) => `
+      <h4>${SEVERITY_LABELS[severity] || severity}</h4>
+      ${items.map(f => `<div class="findings-${severity}"><strong>${f.check}</strong>${f.location ? " (" + f.location + ")" : ""}: ${f.message}</div>`).join("")}
+    `).join("") || "<p>Žiadne nálezy.</p>";
+
+  const questionsHtml = (pkg.open_questions || []).length
+    ? `<ul>${pkg.open_questions.map(q => `<li>${q}</li>`).join("")}</ul>`
+    : "<p>Žiadne otvorené otázky.</p>";
+
+  const sourcesHtml = (pkg.sources || []).length
+    ? `<ul>${pkg.sources.map(s => `<li>${s.instrument_full_citation}${s.provision_label ? ", " + s.provision_label : ""}${s.note ? " — " + s.note : ""}</li>`).join("")}</ul>`
+    : "<p>Žiadne zdroje.</p>";
+
+  outputEl.innerHTML = `
+    <h2>${pkg.title}</h2>
+    <div class="disclaimer">${pkg.disclaimer}</div>
+    <p class="meta">Vytvorené: ${pkg.generated_at} · Právny stav k: ${pkg.as_of_date}${pkg.as_of_was_default ? " (predvolený)" : ""}</p>
+
+    <h3 class="section-heading">A. Manažérske zhrnutie</h3>
+    <p>${pkg.executive_summary}</p>
+
+    <h3 class="section-heading">B. Zistený právny stav</h3>
+    <p>${pkg.current_legal_state}</p>
+
+    ${pkg.amendment_points ? `<h3 class="section-heading">F. Novelizačné body</h3><pre>${pkg.amendment_points}</pre>` : ""}
+    ${pkg.consolidated_text ? `<h3 class="section-heading">G. Konsolidované znenie</h3><pre>${pkg.consolidated_text}</pre>` : ""}
+
+    <h3 class="section-heading">J. Kontrolná správa</h3>
+    ${findingsHtml}
+
+    <h3 class="section-heading open-questions">K. Otvorené otázky</h3>
+    ${questionsHtml}
+
+    <h3 class="section-heading">L. Zdroje</h3>
+    ${sourcesHtml}
+
+    <h3 class="section-heading">Export</h3>
+    <div class="export-buttons">
+      <button onclick="exportPackage('markdown', 'balik.md', 'text/markdown')">Markdown</button>
+      <button onclick="exportPackage('html', 'balik.html', 'text/html')">HTML</button>
+      <button onclick="exportPackage('docx', 'balik.docx')">DOCX</button>
+      <button onclick="exportPackage('pdf', 'balik.pdf')">PDF</button>
+      <button onclick="exportPackage('xlsx/findings', 'kontrolna-sprava.xlsx')">XLSX (kontrola)</button>
+    </div>
+  `;
+}
+
+async function exportPackage(format, filename, expectedType) {
+  if (!lastPackage) return;
+  try {
+    const res = await fetch(API_BASE + "/api/v1/export/" + format, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(lastPackage),
+    });
+    if (!res.ok) {
+      alert("Export zlyhal: " + (await res.text()));
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (e) {
+    alert("Chyba pri exporte: " + e);
   }
 }
 </script>

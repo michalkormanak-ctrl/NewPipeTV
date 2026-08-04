@@ -32,9 +32,15 @@
    diakritiky - vstavané reportlab fonty ju nepodporujú. Endpointy
    neorchestrujú *generovanie* obsahu balíka (to vyžaduje LLM, pozri bod 8
    nižšie) - iba serializujú už zostavené dáta.
-7. **Bez frontendu s plnou funkcionalitou.** `frontend/` obsahuje iba
-   minimálnu jednostránkovú demo pre `/api/v1/search`, nie všetky režimy
-   zo sekcie 15 ani UI pre export.
+7. **Frontend pokrýva 2 z 11 režimov zo sekcie 15.** `frontend/index.html`
+   má záložky "Právna rešerš" (`/api/v1/search`) a "Legislatívny projekt"
+   (`/api/v1/legislative-project/from-text` + tlačidlá na export do
+   Markdown/HTML/DOCX/PDF/XLSX). Reálne otestované cez Playwright proti
+   živému backendu (Postgres + FastAPI) - vrátane príkladového zadania zo
+   sekcie 2 master promptu a sťahovania exportovaného súboru. Chýbajúce
+   režimy: porovnanie predpisov/časových verzií, kontrola návrhu, tvorba
+   novely/nového zákona ako samostatný krokový sprievodca, spracovanie
+   pripomienok, dôvodová správa, legislatívny proces.
 8. **Legislatívny generátor je orchestrovaný end-to-end, ale iba nad
    `FakeLLMProvider`.** `app/generator/legislative_project.py` +
    `POST /api/v1/legislative-project` prepája vyhľadanie cieľového

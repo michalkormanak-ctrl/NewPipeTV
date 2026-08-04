@@ -82,6 +82,9 @@ docker-compose.yml   # Postgres + OpenSearch + API pre lokálny vývoj
   (jednoduchý pokyn v prirodzenom jazyku, priamo otestované na príkladovom
   zadaní zo sekcie 2 master promptu — nad `FakeLLMProvider`, pozri
   disclaimer v odpovedi, nie je pre skutočné právne použitie).
+- `frontend/index.html` (záložky Právna rešerš + Legislatívny projekt aj
+  s exportom) — reálne overené cez Playwright proti živému backendu s
+  Postgresom (nie len proti mockom).
 
 ## Čo vyžaduje rozhodnutie/prístup človeka pred pokračovaním
 
