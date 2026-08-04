@@ -5,7 +5,7 @@ from datetime import date
 
 from pydantic import BaseModel
 
-from app.export.package import LegislativePackage, SourceCitation
+from app.export.package import CommentExportRow, LegislativePackage, SourceCitation
 from app.validators.legislative import ValidationFinding
 
 
@@ -56,3 +56,23 @@ class LegislativePackageIn(BaseModel):
             control_findings=[f.to_dataclass() for f in self.control_findings],
             sources=[s.to_dataclass() for s in self.sources],
         )
+
+
+class CommentExportRowIn(BaseModel):
+    """Sekcia 12 zadania - jedna pripomienka z legislatívneho procesu."""
+
+    author: str
+    target_provision_label: str | None = None
+    comment_type: str
+    is_fundamental: bool = False
+    text: str
+    proposed_wording: str | None = None
+    justification: str | None = None
+    thematic_category: str | None = None
+    legal_argument: str | None = None
+    result: str | None = None
+    resolution_method: str | None = None
+    final_wording: str | None = None
+
+    def to_dataclass(self) -> CommentExportRow:
+        return CommentExportRow(**self.model_dump())

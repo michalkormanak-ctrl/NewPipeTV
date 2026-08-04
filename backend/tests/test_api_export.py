@@ -66,3 +66,30 @@ def test_export_findings_xlsx_rejects_empty_findings() -> None:
     payload["control_findings"] = []
     response = client.post("/api/v1/export/xlsx/findings", json=payload)
     assert response.status_code == 422
+
+
+_COMMENTS_PAYLOAD = [
+    {
+        "author": "Ministerstvo financií SR",
+        "target_provision_label": "§ 5 ods. 2",
+        "comment_type": "zasadna",
+        "is_fundamental": True,
+        "text": "Navrhujeme predĺžiť lehotu.",
+        "proposed_wording": "30 dní sa nahrádza slovami 60 dní.",
+        "result": "ciastocne_akceptovana",
+    }
+]
+
+
+def test_export_comments_xlsx_returns_spreadsheet() -> None:
+    response = client.post("/api/v1/export/xlsx/comments", json=_COMMENTS_PAYLOAD)
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    assert response.content[:2] == b"PK"
+
+
+def test_export_comments_xlsx_rejects_empty_list() -> None:
+    response = client.post("/api/v1/export/xlsx/comments", json=[])
+    assert response.status_code == 422

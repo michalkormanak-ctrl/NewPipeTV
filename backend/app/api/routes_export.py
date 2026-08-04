@@ -12,8 +12,8 @@ from app.export.docx_exporter import to_docx_bytes
 from app.export.html_exporter import to_html
 from app.export.json_exporter import to_json
 from app.export.markdown_exporter import to_markdown
-from app.export.xlsx_exporter import to_findings_xlsx_bytes
-from app.schemas.export import LegislativePackageIn
+from app.export.xlsx_exporter import to_comments_xlsx_bytes, to_findings_xlsx_bytes
+from app.schemas.export import CommentExportRowIn, LegislativePackageIn
 
 router = APIRouter(prefix="/api/v1/export", tags=["export"])
 
@@ -56,4 +56,17 @@ def export_findings_xlsx(package_in: LegislativePackageIn) -> Response:
         content=content,
         media_type=_XLSX_MEDIA_TYPE,
         headers={"Content-Disposition": 'attachment; filename="kontrolna-sprava.xlsx"'},
+    )
+
+
+@router.post("/xlsx/comments")
+def export_comments_xlsx(comments_in: list[CommentExportRowIn]) -> Response:
+    """Export pripomienok z legislatívneho procesu (sekcia 12 zadania)."""
+    if not comments_in:
+        raise HTTPException(status_code=422, detail="Zoznam pripomienok je prázdny.")
+    content = to_comments_xlsx_bytes([c.to_dataclass() for c in comments_in])
+    return Response(
+        content=content,
+        media_type=_XLSX_MEDIA_TYPE,
+        headers={"Content-Disposition": 'attachment; filename="pripomienky.xlsx"'},
     )

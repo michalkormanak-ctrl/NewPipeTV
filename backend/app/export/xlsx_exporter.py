@@ -96,3 +96,9 @@ def to_comments_xlsx(comments: list[CommentExportRow], path: str | Path) -> Path
     output_path = Path(path)
     workbook.save(output_path)
     return output_path
+
+
+def to_comments_xlsx_bytes(comments: list[CommentExportRow]) -> bytes:
+    buffer = io.BytesIO()
+    build_comments_workbook(comments).save(buffer)
+    return buffer.getvalue()

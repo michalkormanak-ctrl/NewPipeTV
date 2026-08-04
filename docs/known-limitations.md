@@ -18,12 +18,11 @@
 5. **Bez autentifikácie/MFA.** RBAC v pilote číta rolu z HTTP hlavičky bez
    overenia identity - nepoužívať mimo lokálneho vývoja.
 6. **Exportná vrstva čiastočne implementovaná.** Markdown/JSON/HTML/DOCX/XLSX
-   (findings) exportéry existujú a sú testované (`app/export/`,
-   `POST /api/v1/export/*`) - fungujú nad ľubovoľným `LegislativePackage`
-   zostaveným klientom. **Chýba PDF export** a XLSX export pre pripomienky
-   (`to_comments_xlsx` existuje a je testovaný, ale nemá API endpoint).
-   Endpoint neorchestruje *generovanie* obsahu balíka (to vyžaduje LLM,
-   pozri bod 8 nižšie) - iba serializuje už zostavený balík.
+   (kontrolná správa aj pripomienky) exportéry existujú a sú testované
+   (`app/export/`, `POST /api/v1/export/*`) - fungujú nad ľubovoľným
+   `LegislativePackage`/zoznamom pripomienok zostaveným klientom. **Chýba
+   iba PDF export.** Endpointy neorchestrujú *generovanie* obsahu balíka
+   (to vyžaduje LLM, pozri bod 8 nižšie) - iba serializujú už zostavené dáta.
 7. **Bez frontendu s plnou funkcionalitou.** `frontend/` obsahuje iba
    minimálnu jednostránkovú demo pre `/api/v1/search`, nie všetky režimy
    zo sekcie 15 ani UI pre export.

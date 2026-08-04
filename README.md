@@ -20,7 +20,7 @@ cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 alembic upgrade head
-pytest -v                 # 77 testov, bez potreby bežiaceho Docker/DB
+pytest -v                 # 79 testov, bez potreby bežiaceho Docker/DB
 uvicorn app.main:app --reload
 ```
 
@@ -71,13 +71,13 @@ docker-compose.yml   # Postgres + OpenSearch + API pre lokálny vývoj
 
 ## Čo je overiteľné hneď teraz
 
-- `pytest -v` v `backend/` — 69 testov zelených, pokrývajú 12 z 14
+- `pytest -v` v `backend/` — 79 testov zelených, pokrývajú 12 z 14
   akceptačných kritérií zo sekcie 18.3 zadania bez potreby cloudového účtu
   (zvyšné 2 vyžadujú reálne LLM volanie, pozri `docs/test-plan.md`).
 - `alembic upgrade head` vytvorí kompletnú schému (23 tabuliek) — overené
   proti SQLite aj koncepčne proti Postgresu (dialekt-portable typy).
 - `uvicorn app.main:app` + `GET /health`, `GET /api/v1/search`,
-  `POST /api/v1/export/{markdown,html,json,docx,xlsx/findings}`,
+  `POST /api/v1/export/{markdown,html,json,docx,xlsx/findings,xlsx/comments}`,
   `POST /api/v1/legislative-project`, `POST /api/v1/legislative-project/from-text`
   (jednoduchý pokyn v prirodzenom jazyku, priamo otestované na príkladovom
   zadaní zo sekcie 2 master promptu — nad `FakeLLMProvider`, pozri
