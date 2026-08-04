@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8" />
+<title>SK legislatívny pilot — vyhľadávanie</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  input, button { font-size: 1rem; padding: 0.4rem; }
+  #query { width: 60%; }
+  .result { border: 1px solid #ccc; border-radius: 6px; padding: 0.75rem; margin: 0.75rem 0; }
+  .meta { color: #555; font-size: 0.85rem; }
+  .note { background: #fff3cd; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; }
+  .disclaimer { background: #f8d7da; padding: 0.5rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>SK legislatívny pilot</h1>
+<p class="disclaimer">
+  Toto je vývojový pilot bez reálnych overených právnych dát (pozri
+  <code>docs/known-limitations.md</code> v repozitári). Nepoužívať ako
+  zdroj právne záväzných informácií.
+</p>
+
+<div>
+  <input id="query" placeholder="napr. § 31 ods. 2" />
+  <input id="asOf" type="date" />
+  <button onclick="search()">Hľadať</button>
+</div>
+
+<div id="note"></div>
+<div id="results"></div>
+
+<script>
+const API_BASE = "http://localhost:8000";
+
+async function search() {
+  const q = document.getElementById("query").value;
+  const asOf = document.getElementById("asOf").value;
+  const url = new URL(API_BASE + "/api/v1/search");
+  url.searchParams.set("q", q);
+  if (asOf) url.searchParams.set("as_of", asOf);
+
+  const noteEl = document.getElementById("note");
+  const resultsEl = document.getElementById("results");
+  noteEl.textContent = "Načítavam...";
+  resultsEl.innerHTML = "";
+
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    noteEl.innerHTML = data.as_of_note ? `<div class="note">${data.as_of_note}</div>` : "";
+    if (data.results.length === 0) {
+      resultsEl.textContent = "Žiadne výsledky.";
+      return;
+    }
+    resultsEl.innerHTML = data.results.map(r => `
+      <div class="result">
+        <div><strong>${r.instrument_full_citation}</strong>, ${r.provision_label}</div>
+        <div>${r.text}</div>
+        <div class="meta">Účinné od: ${r.effective_from}${r.effective_to ? " do " + r.effective_to : ""}</div>
+        ${r.consolidation_disclaimer ? `<div class="disclaimer">${r.consolidation_disclaimer}</div>` : ""}
+      </div>
+    `).join("");
+  } catch (e) {
+    noteEl.textContent = "Chyba pri volaní API: " + e;
+  }
+}
+</script>
+</body>
+</html>
