@@ -44,6 +44,13 @@ prístupu – kód je pripravený, dáta nie sú v tomto sedení stiahnuté.
   Gemini prístup (blokujúce, mimo pilotu) – v pilote beží nad
   `FakeLLMProvider` iba pre demonštráciu toku dát, **nie je pre skutočné
   právne použitie**.
+- Exportná vrstva pre výstupný balík (sekcia 14 A-L) hotová a testovaná:
+  Markdown/JSON/HTML/DOCX (`backend/app/export/`) + `POST /api/v1/export/*`.
+  XLSX pre kontrolnú správu hotové s API endpointom; XLSX pre pripomienky
+  (`to_comments_xlsx`) hotové, zatiaľ bez API endpointu. Chýba PDF export.
+  Endpoint exportuje klientom zostavený balík - automatické zostavenie
+  balíka z `DraftingProject` end-to-end vyžaduje LLM (pozri Etapa 3
+  vyššie).
 
 ## Etapa 4 – Kontrolný systém — **NAVRHNUTÉ**
 - `validation_result` entita a `check_type` enumerácia pre kontroly A–G

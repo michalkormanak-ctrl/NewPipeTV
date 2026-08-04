@@ -17,15 +17,22 @@
    netestované end-to-end (vyžaduje bežiaci OpenSearch).
 5. **Bez autentifikácie/MFA.** RBAC v pilote číta rolu z HTTP hlavičky bez
    overenia identity - nepoužívať mimo lokálneho vývoja.
-6. **Bez exportnej vrstvy.** DOCX/PDF/XLSX export (sekcia 15) nie je v
-   tomto pilote implementovaný.
+6. **Exportná vrstva čiastočne implementovaná.** Markdown/JSON/HTML/DOCX/XLSX
+   (findings) exportéry existujú a sú testované (`app/export/`,
+   `POST /api/v1/export/*`) - fungujú nad ľubovoľným `LegislativePackage`
+   zostaveným klientom. **Chýba PDF export** a XLSX export pre pripomienky
+   (`to_comments_xlsx` existuje a je testovaný, ale nemá API endpoint).
+   Endpoint neorchestruje *generovanie* obsahu balíka (to vyžaduje LLM,
+   pozri bod 8 nižšie) - iba serializuje už zostavený balík.
 7. **Bez frontendu s plnou funkcionalitou.** `frontend/` obsahuje iba
    minimálnu jednostránkovú demo pre `/api/v1/search`, nie všetky režimy
-   zo sekcie 15.
+   zo sekcie 15 ani UI pre export.
 8. **Legislatívny generátor (kroky 1-11 sekcie 11) nie je orchestrovaný
    end-to-end.** Stavebné bloky (dátový model, aplikácia novelizačných
-   bodov, konsolidácia, validátory) existujú a sú testované samostatne;
-   plné prepojenie na "jeden pokyn → kompletný balík" vyžaduje LLM prístup.
+   bodov, konsolidácia, validátory, exportná vrstva) existujú a sú
+   testované samostatne; plné prepojenie na "jeden pokyn → kompletný
+   balík" (t. j. automatické zostavenie `LegislativePackage` z
+   `DraftingProject`) vyžaduje LLM prístup.
 9. **`sensitive_restricted` pracovný priestor** (bod 16.1) nemá žiadnu
    implementáciu - zámerne, kým nebude definované izolované prostredie.
 10. **Terraform (`infra/terraform/`) je nezaplikovaná kostra**, nie

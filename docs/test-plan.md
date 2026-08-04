@@ -21,7 +21,7 @@
 | Podiel podložených tvrdení | `test_grounding.py` (mimo pilotu – vyžaduje LLM; zatiaľ iba kontrakt rozhrania) |
 | Úspešnosť aplikácie novelizačných bodov | `test_apply_amendment.py` – vrátane prípadu konfliktu |
 | Počet nevyriešených konsolidačných konfliktov | rovnaký test – konflikt sa NIKDY nezahodí ticho |
-| Stabilita exportu | mimo pilotu (exportná vrstva nie je v tomto behu implementovaná) |
+| Stabilita exportu | `test_export_*.py`, `test_api_export.py` – Markdown/JSON/HTML/DOCX/XLSX overené na štruktúrovaný roundtrip (nadpisy, tabuľky, escapovanie); PDF export mimo pilotu |
 
 ## 3. Akceptačné testy (sekcia 18.3) – stav pokrytia v tomto pilote
 
