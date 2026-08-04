@@ -20,7 +20,7 @@ cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 alembic upgrade head
-pytest -v                 # 88 testov, bez potreby bežiaceho Docker/DB
+pytest -v                 # 96 testov, bez potreby bežiaceho Docker/DB
 uvicorn app.main:app --reload
 ```
 
@@ -58,20 +58,20 @@ backend/
     llm/               # Vymeniteľné LLM rozhranie + FakeLLMProvider + prompty
     security/          # RBAC, sanitizácia proti prompt injection
     api/                # FastAPI routery (search, export, legislative-project)
-    export/             # Markdown/JSON/HTML/DOCX/XLSX exportéry (sekcia 14/15)
+    export/             # Markdown/JSON/HTML/DOCX/PDF/XLSX exportéry (sekcia 14/15)
     generator/           # Orchestrácia LEGISLATÍVNY_PROJEKT workflow (sekcia 11)
     schemas/             # Pydantic request/response modely (export, generator)
   alembic/            # Migrácie DB schémy
-  tests/              # 69 pytest testov vrátane akceptačných kritérií 18.3
+  tests/              # 96 pytest testov vrátane golden datasetu (18.1) a akceptačných kritérií (18.3)
 docs/                # Etapa 0 dokumentácia + ADR
-frontend/            # Minimálna demo stránka pre /api/v1/search
+frontend/            # Demo UI: právna rešerš + legislatívny projekt s exportom
 infra/terraform/     # Nezaplikovaná kostra GCP infraštruktúry
 docker-compose.yml   # Postgres + OpenSearch + API pre lokálny vývoj
 ```
 
 ## Čo je overiteľné hneď teraz
 
-- `pytest -v` v `backend/` — 88 testov zelených, pokrývajú 12 z 14
+- `pytest -v` v `backend/` — 96 testov zelených, pokrývajú 12 z 14
   akceptačných kritérií zo sekcie 18.3 zadania bez potreby cloudového účtu
   (zvyšné 2 vyžadujú reálne LLM volanie, pozri `docs/test-plan.md`).
 - `alembic upgrade head` vytvorí kompletnú schému (23 tabuliek) — overené

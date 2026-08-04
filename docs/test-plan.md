@@ -7,9 +7,31 @@
   prompt injection.
 - **Integračné**: FastAPI `TestClient` proti dočasnej SQLite/Postgres DB
   (`backend/tests/test_api_*.py`).
-- **Golden dataset** (sekcia 18.1): malý, ručne overený súbor
-  `backend/tests/fixtures/golden/` s očakávanými výstupmi pre presne
-  definované dopyty.
+- **Golden dataset** (sekcia 18.1): `backend/tests/test_golden_dataset.py` -
+  syntetický, ale koherentný korpus priamo v teste (nie samostatný
+  fixture adresár), pokrývajúci všetkých 11 požadovaných scenárov -
+  pozri sekciu 2a nižšie.
+
+## 2a. Golden dataset (sekcia 18.1) - pokrytie 11 požadovaných scenárov
+
+| # | Scenár | Test |
+|---|---|---|
+| 1 | Konkrétne vyhľadanie zákona | `test_search_service.py` |
+| 2 | Konkrétne ustanovenie | `test_search_service.py` |
+| 3 | Historická verzia | `test_point_in_time.py` |
+| 4 | Novelizácia | `test_apply_amendment.py`, `test_generator_legislative_project.py` |
+| 5 | Zrušené ustanovenie | `test_golden_dataset.py::test_repealed_provision_has_no_effective_version_after_repeal` |
+| 6 | Rozdielna (odložená) účinnosť | `test_golden_dataset.py::test_delayed_effectiveness_of_single_provision_within_amendment` |
+| 7 | Prechodné ustanovenie | `test_golden_dataset.py::test_transitional_provision_is_only_effective_within_its_window` |
+| 8 | Odkaz na iný predpis | `test_golden_dataset.py::test_citation_resolves_to_target_provision_in_another_instrument` |
+| 9 | Vykonávací predpis | `test_golden_dataset.py::test_implementing_regulation_relation` |
+| 10 | Právny akt EÚ | `test_golden_dataset.py::test_eu_act_relation` |
+| 11 | Pripomienka z legislatívneho procesu | `test_golden_dataset.py::test_legislative_process_comment_lifecycle` |
+
+Doplnkovo (nie v pôvodnom zozname, ale rovnaká rodina modelov):
+`test_court_decision_relation` (súdne rozhodnutie a väzba "bol predmetom
+súdneho preskúmania"). Všetky scenáre 5-11 sú syntetické dáta priamo v
+teste (žiadne reálne stiahnuté predpisy - pozri docs/risks.md).
 
 ## 2. Metriky (sekcia 18.2) a ako sa merajú v pilote
 
