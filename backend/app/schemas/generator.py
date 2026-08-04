@@ -40,3 +40,14 @@ class DraftingRequestIn(BaseModel):
             working_assumptions=self.working_assumptions,
             requested_effective_date=self.requested_effective_date,
         )
+
+
+class FreeTextInstructionIn(BaseModel):
+    """Vstup bližší k reálnemu použitiu - "jednoduchý pokyn v prirodzenom
+    jazyku" (bod 2 zadania). Interpretácia je heuristická (bez LLM), pozri
+    app/generator/instruction_interpreter.py."""
+
+    instruction: str
+    title: str | None = None
+    as_of: date | None = None
+    amendment_instructions: list[AmendmentInstructionIn] = []

@@ -45,6 +45,12 @@ prístupu – kód je pripravený, dáta nie sú v tomto sedení stiahnuté.
   konfliktu, legislatívno-technickú validáciu a zostavenie
   `LegislativePackage` do jedného volania. 5 end-to-end testov vrátane
   konfliktu a nenájdeného ustanovenia.
+- **Krok 1 (interpretácia zadania) z voľného textu** - heuristická
+  extrakcia bez LLM (`app/generator/instruction_interpreter.py`,
+  `POST /api/v1/legislative-project/from-text`), priamo otestovaná na
+  príkladovom zadaní zo sekcie 2 master promptu (regex nájde "500/2022 Z. z.",
+  správne rozpozná chýbajúci konkrétny §, vráti otvorenú otázku namiesto
+  vymysleného umiestnenia zmeny).
 - Generovanie paragrafového znenia a dôvodovej správy cez LLM: rozhranie
   pripravené (`backend/app/llm/`), reálne generovanie vyžaduje Vertex AI
   Gemini prístup (blokujúce, mimo pilotu) – v pilote beží nad

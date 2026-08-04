@@ -36,13 +36,20 @@
    vyžadujú skutočný právny úsudok** (manažérske zhrnutie, varianty,
    dôvodová správa) sú generované cez `LLMProvider` rozhranie - pri
    `FakeLLMProvider` je výstup iba echo/demo, nie skutočná právna
-   analýza. Chýba aj: extrakcia zadania z voľného textu (krok 1 -
-   `DraftingRequest` sa v pilote zostavuje ručne/štruktúrovane, nie z
-   voľného pokynu), test potreby úpravy (krok 3), ústavnoprávna a EÚ
-   kontrola (kroky 5-6, Kontroly B-G zo sekcie 13), detekcia
-   nedefinovaných pojmov v generátore (vyžaduje kandidátne pojmy z
-   NLP/LLM, zámerne nevolaná - pozri komentár v kóde), procesná mapa
-   (krok 11).
+   analýza. Krok 1 (interpretácia zadania) má odteraz **heuristickú
+   extrakciu z voľného textu bez LLM**
+   (`app/generator/instruction_interpreter.py`,
+   `POST /api/v1/legislative-project/from-text`) - regexom nájde číslo/rok
+   predpisu a odkaz na §/čl., overené priamo na príkladovom zadaní zo
+   sekcie 2 master promptu (test `test_instruction_interpreter.py`). Ak sa
+   nedá jednoznačne určiť predpis alebo ustanovenie, systém sa **spýta**,
+   nevymyslí umiestnenie zmeny. Je to čisto pravidlová extrakcia (žiadne
+   sémantické porozumenie cieľa, dotknutých osôb, sankcií a pod. - to
+   stále vyžaduje LLM). Chýba aj: test potreby úpravy (krok 3),
+   ústavnoprávna a EÚ kontrola (kroky 5-6, Kontroly B-G zo sekcie 13),
+   detekcia nedefinovaných pojmov v generátore (vyžaduje kandidátne
+   pojmy z NLP/LLM, zámerne nevolaná - pozri komentár v kóde), procesná
+   mapa (krok 11).
 9. **`sensitive_restricted` pracovný priestor** (bod 16.1) nemá žiadnu
    implementáciu - zámerne, kým nebude definované izolované prostredie.
 10. **Terraform (`infra/terraform/`) je nezaplikovaná kostra**, nie
