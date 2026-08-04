@@ -16,6 +16,7 @@ Legenda pravdepodobnosti/dopadu: N (nízka/nízky), S (stredná/stredný), V (vy
 | R10 | Osobné/citlivé údaje (napr. VS oprávnenia v ukážkovom zadaní) si vyžadujú osobitný bezpečnostný režim | S | V | Sekcia 16.1 – oddelené priestory; citlivé/utajované dokumenty sa nesmú spracúvať v bežnom cloude; v pilote nie sú takéto dáta prítomné |
 | R11 | Duplicitná/nekonzistentná terminológia naprieč predpismi | S | N | `term_definition` entita s väzbou na predpis a rozsah platnosti; validátor kontroluje nedefinované pojmy |
 | R12 | Zmena Legislatívnych pravidiel vlády SR alebo procesných krokov NR SR | S | S | Procesná mapa (bod 11) sa generuje z aktuálne overených pravidiel, nie je hardcoded na trvalo |
+| R13 | `docker pull` je v tomto sedení zablokovaný egress politikou (potvrdené: CONNECT na `production.cloudfront.docker.com` vrátil 403) | V | S | OpenSearch end-to-end beh (`docker-compose.yml`) nemožno v tomto sedení reálne overiť. `OpenSearchIndex` wrapper je otestovaný nad falošným klientom (`tests/test_opensearch_client.py`) - overuje volania/spracovanie odpovede, nie skutočné správanie Lucene BM25. Live smoke test je predpodmienkou produkčného nasadenia (rovnaká kategória blokácie ako R2 - sieťová politika prostredia, nie chyba kódu) |
 
 ## Neistoty vyžadujúce rozhodnutie človeka (blokujúce)
 

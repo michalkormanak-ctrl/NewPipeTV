@@ -30,6 +30,10 @@ prístupu – kód je pripravený, dáta nie sú v tomto sedení stiahnuté.
 - Presné vyhľadávanie nad Postgresom (`backend/app/search/service.py`).
 - Fulltextové vyhľadávanie: pripravené rozhranie pre OpenSearch
   (`backend/app/search/opensearch_client.py`), beží v `docker-compose.yml`.
+  Logika wrapperu otestovaná nad falošným klientom
+  (`tests/test_opensearch_client.py`); reálny beh proti živej inštancii
+  nebol v tomto sedení overiteľný (`docker pull` zablokovaný egress
+  politikou, docs/risks.md R13) - vyžaduje live smoke test pred produkciou.
 - Vektorové vyhľadávanie a reranking: **mimo pilotu** – vyžaduje
   embedding model / Vertex AI prístup (viď ADR-0004). Rozhranie pripravené
   (`backend/app/llm/base.py`).

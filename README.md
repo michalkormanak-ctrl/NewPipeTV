@@ -20,7 +20,7 @@ cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 alembic upgrade head
-pytest -v                 # 84 testov, bez potreby bežiaceho Docker/DB
+pytest -v                 # 88 testov, bez potreby bežiaceho Docker/DB
 uvicorn app.main:app --reload
 ```
 
@@ -71,7 +71,7 @@ docker-compose.yml   # Postgres + OpenSearch + API pre lokálny vývoj
 
 ## Čo je overiteľné hneď teraz
 
-- `pytest -v` v `backend/` — 84 testov zelených, pokrývajú 12 z 14
+- `pytest -v` v `backend/` — 88 testov zelených, pokrývajú 12 z 14
   akceptačných kritérií zo sekcie 18.3 zadania bez potreby cloudového účtu
   (zvyšné 2 vyžadujú reálne LLM volanie, pozri `docs/test-plan.md`).
 - `alembic upgrade head` vytvorí kompletnú schému (23 tabuliek) — overené

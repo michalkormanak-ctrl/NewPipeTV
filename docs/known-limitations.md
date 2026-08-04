@@ -13,8 +13,14 @@
    vyžaduje Vertex AI Gemini prístup (ADR-0004).
 4. **Vektorové vyhľadávanie a reranking nie sú implementované.** Iba
    presné vyhľadávanie (Postgres) a jednoduchý ILIKE fulltext. Produkčné
-   OpenSearch BM25 je naprogramované (`opensearch_client.py`), ale
-   netestované end-to-end (vyžaduje bežiaci OpenSearch).
+   OpenSearch BM25 je naprogramované (`opensearch_client.py`) a jeho
+   logika (volania klienta, spracovanie odpovede) je otestovaná nad
+   falošným klientom (`tests/test_opensearch_client.py`) - **skutočný beh
+   proti živej inštancii OpenSearch nebol overený**: `docker pull` je v
+   tomto sedení zablokovaný egress politikou (potvrdené CONNECT 403 na
+   `production.cloudfront.docker.com`, rovnaká kategória obmedzenia ako
+   Slov-Lex/EUR-Lex, pozri docs/risks.md R13). Live smoke test je
+   predpodmienkou produkčného nasadenia tejto vrstvy.
 5. **Bez autentifikácie/MFA.** RBAC v pilote číta rolu z HTTP hlavičky bez
    overenia identity - nepoužívať mimo lokálneho vývoja.
 6. **Exportná vrstva implementovaná pre všetkých 6 formátov zo sekcie 15**
