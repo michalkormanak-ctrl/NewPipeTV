@@ -34,23 +34,30 @@ prístupu – kód je pripravený, dáta nie sú v tomto sedení stiahnuté.
   embedding model / Vertex AI prístup (viď ADR-0004). Rozhranie pripravené
   (`backend/app/llm/base.py`).
 
-## Etapa 3 – Legislatívny generátor — **NAVRHNUTÉ, ČIASTOČNE IMPLEMENTOVANÉ**
+## Etapa 3 – Legislatívny generátor — **ORCHESTROVANÉ END-TO-END (nad FakeLLMProvider)**
 - Dátové entity (`drafting_project`, `draft_version`, `amendment`) hotové.
 - Diff/aplikácia novelizačného bodu na aktuálne znenie: implementované
   (`backend/app/consolidation/apply_amendment.py`) s testami vrátane
   prípadu, ktorý sa má označiť ako konflikt.
+- **Orchestrácia workflow** (`backend/app/generator/legislative_project.py`,
+  `POST /api/v1/legislative-project`): prepája vyhľadanie cieľového
+  ustanovenia (point-in-time), aplikáciu novelizačných bodov s detekciou
+  konfliktu, legislatívno-technickú validáciu a zostavenie
+  `LegislativePackage` do jedného volania. 5 end-to-end testov vrátane
+  konfliktu a nenájdeného ustanovenia.
 - Generovanie paragrafového znenia a dôvodovej správy cez LLM: rozhranie
   pripravené (`backend/app/llm/`), reálne generovanie vyžaduje Vertex AI
   Gemini prístup (blokujúce, mimo pilotu) – v pilote beží nad
   `FakeLLMProvider` iba pre demonštráciu toku dát, **nie je pre skutočné
-  právne použitie**.
+  právne použitie**. Extrakcia zadania z voľného textu (krok 1),
+  ústavnoprávna/EÚ kontrola (kroky 5-6) a procesná mapa (krok 11) nie sú
+  implementované - vyžadujú LLM.
 - Exportná vrstva pre výstupný balík (sekcia 14 A-L) hotová a testovaná:
   Markdown/JSON/HTML/DOCX (`backend/app/export/`) + `POST /api/v1/export/*`.
   XLSX pre kontrolnú správu hotové s API endpointom; XLSX pre pripomienky
   (`to_comments_xlsx`) hotové, zatiaľ bez API endpointu. Chýba PDF export.
-  Endpoint exportuje klientom zostavený balík - automatické zostavenie
-  balíka z `DraftingProject` end-to-end vyžaduje LLM (pozri Etapa 3
-  vyššie).
+  `run_legislative_project()` vracia priamo `LegislativePackage`, takže sa
+  dá rovno posunúť ktorémukoľvek exportéru vyššie.
 
 ## Etapa 4 – Kontrolný systém — **NAVRHNUTÉ**
 - `validation_result` entita a `check_type` enumerácia pre kontroly A–G

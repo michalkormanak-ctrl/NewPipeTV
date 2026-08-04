@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.api.routes_export import router as export_router
+from app.api.routes_generator import router as generator_router
 from app.api.routes_search import router as search_router
 
 app = FastAPI(
@@ -14,6 +15,7 @@ app = FastAPI(
 
 app.include_router(search_router)
 app.include_router(export_router)
+app.include_router(generator_router)
 
 
 @app.get("/health")

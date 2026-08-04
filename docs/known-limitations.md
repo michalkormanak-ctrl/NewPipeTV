@@ -27,12 +27,22 @@
 7. **Bez frontendu s plnou funkcionalitou.** `frontend/` obsahuje iba
    minimálnu jednostránkovú demo pre `/api/v1/search`, nie všetky režimy
    zo sekcie 15 ani UI pre export.
-8. **Legislatívny generátor (kroky 1-11 sekcie 11) nie je orchestrovaný
-   end-to-end.** Stavebné bloky (dátový model, aplikácia novelizačných
-   bodov, konsolidácia, validátory, exportná vrstva) existujú a sú
-   testované samostatne; plné prepojenie na "jeden pokyn → kompletný
-   balík" (t. j. automatické zostavenie `LegislativePackage` z
-   `DraftingProject`) vyžaduje LLM prístup.
+8. **Legislatívny generátor je orchestrovaný end-to-end, ale iba nad
+   `FakeLLMProvider`.** `app/generator/legislative_project.py` +
+   `POST /api/v1/legislative-project` prepája vyhľadanie cieľového
+   ustanovenia, aplikáciu novelizačných bodov (vrátane detekcie
+   konfliktu), legislatívno-technické validátory a zostavenie
+   `LegislativePackage` do jedného volania. **Textové sekcie, ktoré
+   vyžadujú skutočný právny úsudok** (manažérske zhrnutie, varianty,
+   dôvodová správa) sú generované cez `LLMProvider` rozhranie - pri
+   `FakeLLMProvider` je výstup iba echo/demo, nie skutočná právna
+   analýza. Chýba aj: extrakcia zadania z voľného textu (krok 1 -
+   `DraftingRequest` sa v pilote zostavuje ručne/štruktúrovane, nie z
+   voľného pokynu), test potreby úpravy (krok 3), ústavnoprávna a EÚ
+   kontrola (kroky 5-6, Kontroly B-G zo sekcie 13), detekcia
+   nedefinovaných pojmov v generátore (vyžaduje kandidátne pojmy z
+   NLP/LLM, zámerne nevolaná - pozri komentár v kóde), procesná mapa
+   (krok 11).
 9. **`sensitive_restricted` pracovný priestor** (bod 16.1) nemá žiadnu
    implementáciu - zámerne, kým nebude definované izolované prostredie.
 10. **Terraform (`infra/terraform/`) je nezaplikovaná kostra**, nie

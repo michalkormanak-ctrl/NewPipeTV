@@ -20,7 +20,7 @@ cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 alembic upgrade head
-pytest -v                 # 63 testov, bez potreby bežiaceho Docker/DB
+pytest -v                 # 69 testov, bez potreby bežiaceho Docker/DB
 uvicorn app.main:app --reload
 ```
 
@@ -57,11 +57,12 @@ backend/
     validators/       # Legislatívno-technické kontroly (Kontrola A)
     llm/               # Vymeniteľné LLM rozhranie + FakeLLMProvider + prompty
     security/          # RBAC, sanitizácia proti prompt injection
-    api/                # FastAPI routery (search, export)
+    api/                # FastAPI routery (search, export, legislative-project)
     export/             # Markdown/JSON/HTML/DOCX/XLSX exportéry (sekcia 14/15)
-    schemas/             # Pydantic request/response modely (export)
+    generator/           # Orchestrácia LEGISLATÍVNY_PROJEKT workflow (sekcia 11)
+    schemas/             # Pydantic request/response modely (export, generator)
   alembic/            # Migrácie DB schémy
-  tests/              # 63 pytest testov vrátane akceptačných kritérií 18.3
+  tests/              # 69 pytest testov vrátane akceptačných kritérií 18.3
 docs/                # Etapa 0 dokumentácia + ADR
 frontend/            # Minimálna demo stránka pre /api/v1/search
 infra/terraform/     # Nezaplikovaná kostra GCP infraštruktúry
@@ -70,13 +71,16 @@ docker-compose.yml   # Postgres + OpenSearch + API pre lokálny vývoj
 
 ## Čo je overiteľné hneď teraz
 
-- `pytest -v` v `backend/` — 63 testov zelených, pokrývajú 12 z 14
+- `pytest -v` v `backend/` — 69 testov zelených, pokrývajú 12 z 14
   akceptačných kritérií zo sekcie 18.3 zadania bez potreby cloudového účtu
   (zvyšné 2 vyžadujú reálne LLM volanie, pozri `docs/test-plan.md`).
 - `alembic upgrade head` vytvorí kompletnú schému (23 tabuliek) — overené
   proti SQLite aj koncepčne proti Postgresu (dialekt-portable typy).
 - `uvicorn app.main:app` + `GET /health`, `GET /api/v1/search`,
-  `POST /api/v1/export/{markdown,html,json,docx,xlsx/findings}`.
+  `POST /api/v1/export/{markdown,html,json,docx,xlsx/findings}`,
+  `POST /api/v1/legislative-project` (celý workflow sekcie 11 nad
+  `FakeLLMProvider` — pozri disclaimer v odpovedi, nie je pre skutočné
+  právne použitie).
 
 ## Čo vyžaduje rozhodnutie/prístup človeka pred pokračovaním
 
